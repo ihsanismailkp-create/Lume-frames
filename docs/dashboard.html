@@ -7,24 +7,24 @@
 
 <title>Lume Frames Dashboard</title>
 
-<link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png">
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#000000">
-
-
 <style>
 
-/* PAGE ANIMATION */
+/* CRITICAL FIX */
+*{
+box-sizing:border-box;
+}
+
+/* PAGE */
 
 body{
 
 margin:0;
-font-family:Arial, sans-serif;
+font-family:Arial;
 background:#f4f4f2;
 padding:20px;
 
 opacity:0;
-animation:fadeIn 0.4s forwards;
+animation:fadeIn 0.5s forwards;
 
 }
 
@@ -56,12 +56,12 @@ align-items:center;
 font-size:30px;
 cursor:pointer;
 
-transition:0.15s;
+transition:.2s;
 
 }
 
 .plus:active{
-transform:scale(0.85);
+transform:scale(.85);
 }
 
 
@@ -87,7 +87,7 @@ padding:18px;
 border-radius:18px;
 margin-top:12px;
 
-animation:slideUp 0.3s ease;
+animation:slideUp .3s;
 
 }
 
@@ -97,20 +97,6 @@ from{
 opacity:0;
 transform:translateY(15px);
 }
-
-to{
-opacity:1;
-transform:translateY(0);
-}
-
-}
-
-
-.summary{
-
-display:flex;
-justify-content:space-between;
-font-weight:bold;
 
 }
 
@@ -145,8 +131,7 @@ color:green;
 
 max-height:0;
 overflow:hidden;
-
-transition:0.4s;
+transition:.4s;
 
 }
 
@@ -158,7 +143,57 @@ margin-top:10px;
 }
 
 
-/* BUTTONS */
+/* MODAL */
+
+.modal{
+
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+
+background:rgba(0,0,0,.4);
+
+padding:20px;
+
+justify-content:center;
+align-items:center;
+
+}
+
+.modal-box{
+
+background:white;
+padding:20px;
+border-radius:15px;
+
+width:100%;
+max-width:350px;
+
+}
+
+
+/* INPUT FINAL FIX */
+
+input,select{
+
+width:100%;
+padding:14px;
+margin-bottom:12px;
+
+border-radius:12px;
+border:1px solid #ddd;
+
+font-size:16px;
+
+display:block;
+
+}
+
+
+/* BUTTON */
 
 button{
 
@@ -166,94 +201,20 @@ padding:12px;
 border:none;
 border-radius:10px;
 color:white;
-margin-top:10px;
-margin-right:10px;
-cursor:pointer;
-
-}
-
-.edit{
 background:black;
+
+width:100%;
+
 }
 
 .delete{
 background:red;
+width:auto;
 }
 
-.save-btn{
-background:black;
-width:100%;
+.edit{
+width:auto;
 }
-
-
-/* MODAL FIXED */
-
-.modal{
-
-display:none;
-position:fixed;
-
-top:0;
-left:0;
-
-width:100%;
-height:100%;
-
-background:rgba(0,0,0,0.4);
-
-justify-content:center;
-align-items:center;
-
-padding:20px;
-
-box-sizing:border-box;
-
-}
-
-
-.modal-box{
-
-background:white;
-
-padding:20px;
-
-border-radius:15px;
-
-width:100%;
-max-width:350px;
-
-box-sizing:border-box;
-
-animation:slideUp 0.3s ease;
-
-}
-
-
-/* INPUT FIX FINAL */
-
-.modal-box input,
-.modal-box select{
-
-width:100%;
-
-padding:14px;
-
-margin-bottom:12px;
-
-border-radius:12px;
-
-border:1px solid #ddd;
-
-font-size:16px;
-
-box-sizing:border-box;
-
-display:block;
-
-background:white;
-
-}
-
 
 </style>
 
@@ -274,9 +235,7 @@ background:white;
 <div class="titles">
 
 <span>Date</span>
-
 <span>Status</span>
-
 <span>Payment</span>
 
 </div>
@@ -285,8 +244,7 @@ background:white;
 <div id="bookings"></div>
 
 
-
-<!-- ADD MODAL -->
+<!-- ADD -->
 
 <div class="modal" id="addModal">
 
@@ -302,68 +260,26 @@ background:white;
 
 <input type="number" id="amount" placeholder="Amount">
 
-<button class="save-btn" onclick="addBooking()">Add</button>
+<button onclick="addBooking()">Add</button>
 
 </div>
 
 </div>
-
-
-
-<!-- EDIT MODAL -->
-
-<div class="modal" id="editModal">
-
-<div class="modal-box">
-
-<h3>Edit Booking</h3>
-
-<select id="status">
-
-<option value="upcoming">Upcoming</option>
-
-<option value="completed">Completed</option>
-
-</select>
-
-
-<select id="payment">
-
-<option value="pending">Pending</option>
-
-<option value="paid">Paid</option>
-
-</select>
-
-
-<button class="save-btn" onclick="saveEdit()">Save</button>
-
-</div>
-
-</div>
-
 
 
 <script>
 
 
-let bookings = JSON.parse(localStorage.getItem("lume")) || [];
+let bookings=JSON.parse(localStorage.getItem("lume"))||[];
 
-let currentIndex = null;
-
-
-/* SAVE */
 
 function save(){
 
-localStorage.setItem("lume", JSON.stringify(bookings));
-
+localStorage.setItem("lume",JSON.stringify(bookings));
 render();
 
 }
 
-
-/* RENDER FIXED */
 
 function render(){
 
@@ -371,49 +287,29 @@ let box=document.getElementById("bookings");
 
 box.innerHTML="";
 
-
 bookings.forEach((b,i)=>{
 
+box.innerHTML+=`
 
-let date = b.date || "-";
+<div class="card" onclick="this.classList.toggle('active')">
 
-let name = b.name || "-";
+<div style="display:flex;justify-content:space-between;">
 
-let location = b.location || "-";
+<span>${b.date||"-"}</span>
 
-let amount = b.amount || "-";
+<span class="badge ${b.status||"upcoming"}">${b.status||"upcoming"}</span>
 
-let status = b.status || "upcoming";
-
-let payment = b.payment || "pending";
-
-
-box.innerHTML += `
-
-<div class="card" onclick="toggleCard(this)">
-
-<div class="summary">
-
-<span>${date}</span>
-
-<span class="badge ${status}">${status}</span>
-
-<span class="badge ${payment}">${payment}</span>
+<span class="badge ${b.payment||"pending"}">${b.payment||"pending"}</span>
 
 </div>
 
-
 <div class="details">
 
-<p><b>Client:</b> ${name}</p>
+<p>Client: ${b.name||"-"}</p>
 
-<p><b>Location:</b> ${location}</p>
+<p>Location: ${b.location||"-"}</p>
 
-<p><b>Amount:</b> ₹${amount}</p>
-
-<button class="edit" onclick="editBooking(event,${i})">Edit</button>
-
-<button class="delete" onclick="deleteBooking(event,${i})">Delete</button>
+<p>Amount: ₹${b.amount||"-"}</p>
 
 </div>
 
@@ -426,121 +322,39 @@ box.innerHTML += `
 }
 
 
-/* TOGGLE */
-
-function toggleCard(card){
-
-card.classList.toggle("active");
-
-}
-
-
-/* OPEN ADD */
-
 function openAdd(){
 
-document.getElementById("addModal").style.display="flex";
+addModal.style.display="flex";
 
-
-document.getElementById("date").valueAsNumber =
-
-Date.now()-(new Date().getTimezoneOffset()*60000);
+date.valueAsNumber=Date.now();
 
 }
 
-
-/* ADD BOOKING FIXED */
 
 function addBooking(){
 
-const booking = {
+bookings.push({
 
-date: document.getElementById("date").value,
-
-name: document.getElementById("name").value.trim(),
-
-location: document.getElementById("location").value.trim(),
-
-amount: document.getElementById("amount").value.trim(),
+date:date.value,
+name:name.value,
+location:location.value,
+amount:amount.value,
 
 status:"upcoming",
-
 payment:"pending"
 
-};
+});
 
-
-bookings.push(booking);
-
-
-document.getElementById("name").value="";
-
-document.getElementById("location").value="";
-
-document.getElementById("amount").value="";
-
-
-document.getElementById("addModal").style.display="none";
-
+addModal.style.display="none";
 
 save();
 
 }
 
-
-/* EDIT */
-
-function editBooking(e,i){
-
-e.stopPropagation();
-
-currentIndex=i;
-
-document.getElementById("editModal").style.display="flex";
-
-}
-
-
-/* SAVE EDIT */
-
-function saveEdit(){
-
-bookings[currentIndex].status =
-
-document.getElementById("status").value;
-
-bookings[currentIndex].payment =
-
-document.getElementById("payment").value;
-
-
-document.getElementById("editModal").style.display="none";
-
-save();
-
-}
-
-
-/* DELETE */
-
-function deleteBooking(e,i){
-
-e.stopPropagation();
-
-bookings.splice(i,1);
-
-save();
-
-}
-
-
-/* START */
 
 render();
 
-
 </script>
-
 
 </body>
 </html>
