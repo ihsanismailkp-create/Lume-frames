@@ -13,10 +13,11 @@
 
 *{
 box-sizing:border-box;
+min-width:0;
 }
 
 
-/* PAGE */
+/* BODY */
 
 body{
 
@@ -64,10 +65,6 @@ cursor:pointer;
 
 }
 
-.plus:active{
-transform:scale(.85);
-}
-
 
 /* TITLES */
 
@@ -75,9 +72,7 @@ transform:scale(.85);
 
 display:flex;
 justify-content:space-between;
-
 margin-top:20px;
-
 color:#777;
 font-weight:bold;
 
@@ -90,9 +85,7 @@ font-weight:bold;
 
 background:#e9e9e7;
 padding:18px;
-
 border-radius:18px;
-
 margin-top:12px;
 
 animation:slideUp .3s;
@@ -113,7 +106,6 @@ transform:translateY(15px);
 
 display:flex;
 justify-content:space-between;
-
 font-weight:bold;
 
 }
@@ -166,30 +158,17 @@ margin-top:10px;
 button{
 
 padding:10px 14px;
-
 border:none;
 border-radius:10px;
-
 color:white;
 cursor:pointer;
-
 margin-top:10px;
-margin-right:10px;
 
 }
 
-.edit{
-background:black;
-}
-
-.delete{
-background:red;
-}
-
-.save{
-background:black;
-width:100%;
-}
+.edit{background:black;}
+.delete{background:red;}
+.save{background:black;width:100%;}
 
 
 /* MODAL */
@@ -197,15 +176,11 @@ width:100%;
 .modal{
 
 display:none;
-
 position:fixed;
-
 top:0;
 left:0;
-
 width:100%;
 height:100%;
-
 background:rgba(0,0,0,.4);
 
 justify-content:center;
@@ -215,42 +190,51 @@ padding:20px;
 
 }
 
-
-/* MODAL BOX */
-
 .modal-box{
 
 background:white;
-
 padding:20px;
-
 border-radius:15px;
-
 width:100%;
 max-width:350px;
 
 }
 
 
-/* INPUT FINAL FIX */
+/* CUSTOM DATE INPUT */
 
-input,select{
+.date-display{
 
 width:100%;
-
 padding:14px;
-
-margin-bottom:12px;
-
-border-radius:10px;
-
 border:1px solid #ccc;
-
-font-size:16px;
-
+border-radius:10px;
+margin-bottom:12px;
 background:white;
+cursor:pointer;
 
-color:black;
+}
+
+.hidden-date{
+
+position:absolute;
+opacity:0;
+pointer-events:none;
+
+}
+
+
+/* INPUT */
+
+input[type=text],
+input[type=number],
+select{
+
+width:100%;
+padding:14px;
+margin-bottom:12px;
+border-radius:10px;
+border:1px solid #ccc;
 
 }
 
@@ -273,9 +257,7 @@ color:black;
 <div class="titles">
 
 <span>Date</span>
-
 <span>Status</span>
-
 <span>Payment</span>
 
 </div>
@@ -293,7 +275,18 @@ color:black;
 
 <h3>Add Booking</h3>
 
-<input type="date" id="date">
+
+<div class="date-display" onclick="openDate()"
+id="dateDisplay">
+
+Select Date
+
+</div>
+
+<input type="date" id="date"
+class="hidden-date"
+onchange="updateDateDisplay()">
+
 
 <input type="text" id="name" placeholder="Client Name">
 
@@ -301,7 +294,11 @@ color:black;
 
 <input type="number" id="amount" placeholder="Amount">
 
-<button class="save" onclick="addBooking()">Add Booking</button>
+<button class="save" onclick="addBooking()">
+
+Add Booking
+
+</button>
 
 </div>
 
@@ -315,25 +312,29 @@ color:black;
 
 <div class="modal-box">
 
-<h3>Edit Booking</h3>
+<h3>Edit</h3>
 
 <select id="status">
 
 <option value="upcoming">Upcoming</option>
-
 <option value="completed">Completed</option>
 
 </select>
 
+
 <select id="payment">
 
 <option value="pending">Pending</option>
-
 <option value="paid">Paid</option>
 
 </select>
 
-<button class="save" onclick="saveEdit()">Save</button>
+
+<button class="save" onclick="saveEdit()">
+
+Save
+
+</button>
 
 </div>
 
@@ -344,18 +345,33 @@ color:black;
 <script>
 
 
-let bookings = JSON.parse(localStorage.getItem("lume")) || [];
+let bookings=
+JSON.parse(localStorage.getItem("lume")) || [];
 
-let currentIndex = null;
+let currentIndex=null;
 
 
 /* SAVE */
 
 function save(){
 
-localStorage.setItem("lume",JSON.stringify(bookings));
+localStorage.setItem("lume",
+JSON.stringify(bookings));
 
 render();
+
+}
+
+
+/* FORMAT DATE */
+
+function formatDate(date){
+
+let d=new Date(date);
+
+return d.toLocaleDateString(
+"en-GB",
+{day:"2-digit",month:"short",year:"numeric"});
 
 }
 
@@ -372,30 +388,36 @@ box.innerHTML="";
 bookings.forEach((b,i)=>{
 
 
-let date = b.date ? b.date : "-";
+let date=b.date?
+formatDate(b.date):"-";
 
-let name = b.name ? b.name : "-";
+let name=b.name||"-";
 
-let location = b.location ? b.location : "-";
+let location=b.location||"-";
 
-let amount = b.amount ? b.amount : "-";
+let amount=b.amount||"-";
 
-let status = b.status ? b.status : "upcoming";
+let status=b.status||"upcoming";
 
-let payment = b.payment ? b.payment : "pending";
+let payment=b.payment||"pending";
 
 
 box.innerHTML+=`
 
-<div class="card" onclick="toggleCard(this)">
+<div class="card"
+onclick="toggleCard(this)">
 
 <div class="summary">
 
 <span>${date}</span>
 
-<span class="badge ${status}">${status}</span>
+<span class="badge ${status}">
+${status}
+</span>
 
-<span class="badge ${payment}">${payment}</span>
+<span class="badge ${payment}">
+${payment}
+</span>
 
 </div>
 
@@ -408,9 +430,15 @@ box.innerHTML+=`
 
 <p><b>Amount:</b> ₹${amount}</p>
 
-<button class="edit" onclick="editBooking(event,${i})">Edit</button>
+<button class="edit"
+onclick="editBooking(event,${i})">
+Edit
+</button>
 
-<button class="delete" onclick="deleteBooking(event,${i})">Delete</button>
+<button class="delete"
+onclick="deleteBooking(event,${i})">
+Delete
+</button>
 
 </div>
 
@@ -432,40 +460,58 @@ card.classList.toggle("active");
 }
 
 
+/* DATE FUNCTIONS */
+
+function openDate(){
+
+document.getElementById("date").showPicker();
+
+}
+
+
+function updateDateDisplay(){
+
+let val=date.value;
+
+dateDisplay.innerText=formatDate(val);
+
+}
+
+
 /* OPEN ADD */
 
 function openAdd(){
 
 addModal.style.display="flex";
 
-date.valueAsNumber=Date.now();
+let today=new Date().toISOString().split("T")[0];
+
+date.value=today;
+
+updateDateDisplay();
 
 }
 
 
-/* ADD */
+/* ADD BOOKING */
 
 function addBooking(){
 
-let booking={
+bookings.push({
 
-date:document.getElementById("date").value,
+date:date.value,
 
-name:document.getElementById("name").value,
+name:name.value,
 
-location:document.getElementById("location").value,
+location:location.value,
 
-amount:document.getElementById("amount").value,
+amount:amount.value,
 
 status:"upcoming",
 
 payment:"pending"
 
-};
-
-
-bookings.push(booking);
-
+});
 
 addModal.style.display="none";
 
@@ -491,14 +537,9 @@ editModal.style.display="flex";
 
 function saveEdit(){
 
-bookings[currentIndex].status=
+bookings[currentIndex].status=status.value;
 
-document.getElementById("status").value;
-
-bookings[currentIndex].payment=
-
-document.getElementById("payment").value;
-
+bookings[currentIndex].payment=payment.value;
 
 editModal.style.display="none";
 
@@ -523,7 +564,6 @@ save();
 render();
 
 </script>
-
 
 </body>
 </html>
