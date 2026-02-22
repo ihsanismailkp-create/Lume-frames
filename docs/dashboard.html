@@ -244,11 +244,269 @@ margin-bottom:10px;
 <select id="payment">
 
 <option value="pending">Pending</option>
+<option value="paid"><!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Lume Frames Dashboard</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial, sans-serif;
+background:#f4f4f2;
+padding:20px;
+}
+
+/* HEADER */
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+h1{
+margin:0;
+font-size:28px;
+}
+
+.subtitle{
+color:#777;
+margin-top:5px;
+}
+
+/* PLUS */
+
+.plus{
+background:black;
+color:white;
+width:48px;
+height:48px;
+border-radius:50%;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:30px;
+cursor:pointer;
+}
+
+/* COLUMN TITLES */
+
+.titles{
+display:flex;
+justify-content:space-between;
+margin-top:25px;
+color:#777;
+font-weight:bold;
+font-size:14px;
+padding:0 5px;
+}
+
+/* CARD */
+
+.card{
+background:#e9e9e7;
+padding:18px;
+border-radius:18px;
+margin-top:12px;
+}
+
+.summary{
+display:flex;
+justify-content:space-between;
+font-weight:bold;
+font-size:16px;
+}
+
+/* STATUS BADGES */
+
+.badge{
+padding:4px 10px;
+border-radius:8px;
+font-size:14px;
+}
+
+.upcoming{
+background:#ffd6d6;
+color:#d60000;
+}
+
+.pending{
+background:#ffd6d6;
+color:#d60000;
+}
+
+.completed{
+background:#d6f5dc;
+color:#0a8a2a;
+}
+
+.paid{
+background:#d6f5dc;
+color:#0a8a2a;
+}
+
+/* DETAILS */
+
+.details{
+display:none;
+margin-top:15px;
+font-size:16px;
+}
+
+.card.active .details{
+display:block;
+}
+
+/* BUTTONS */
+
+button{
+padding:12px;
+border:none;
+border-radius:10px;
+color:white;
+font-size:16px;
+margin-top:10px;
+margin-right:10px;
+}
+
+.edit{
+background:black;
+}
+
+.delete{
+background:red;
+}
+
+/* MODAL */
+
+.modal{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.4);
+justify-content:center;
+align-items:center;
+padding:15px;
+}
+
+.modal-box{
+background:white;
+padding:20px;
+border-radius:15px;
+width:100%;
+max-width:350px;
+}
+
+.modal-box h3{
+margin-top:0;
+}
+
+input, select{
+width:100%;
+padding:14px;
+font-size:16px;
+margin-bottom:12px;
+border-radius:10px;
+border:1px solid #ccc;
+}
+
+.save-btn{
+background:black;
+width:100%;
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<!-- HEADER -->
+
+<div class="header">
+
+<div>
+<h1>Lume Frames</h1>
+<div class="subtitle">Dashboard</div>
+</div>
+
+<div class="plus" onclick="openAdd()">+</div>
+
+</div>
+
+
+<!-- TITLES -->
+
+<div class="titles">
+
+<span>Date</span>
+<span>Status</span>
+<span>Payment</span>
+
+</div>
+
+
+<!-- BOOKINGS -->
+
+<div id="bookings"></div>
+
+
+
+<!-- ADD MODAL -->
+
+<div class="modal" id="addModal">
+
+<div class="modal-box">
+
+<h3>Add Booking</h3>
+
+<input id="name" placeholder="Client Name">
+
+<input id="location" placeholder="Location">
+
+<input id="amount" placeholder="Amount">
+
+<button class="save-btn" onclick="addBooking()">Add Booking</button>
+
+</div>
+
+</div>
+
+
+
+<!-- EDIT MODAL -->
+
+<div class="modal" id="editModal">
+
+<div class="modal-box">
+
+<h3>Edit Booking</h3>
+
+<select id="status">
+
+<option value="upcoming">Upcoming</option>
+<option value="completed">Completed</option>
+
+</select>
+
+<select id="payment">
+
+<option value="pending">Pending</option>
 <option value="paid">Paid</option>
 
 </select>
 
-<button onclick="saveEdit()">Save</button>
+<button class="save-btn" onclick="saveEdit()">Save</button>
 
 </div>
 
@@ -261,7 +519,28 @@ margin-bottom:10px;
 
 let bookings = JSON.parse(localStorage.getItem("lume")) || [];
 
-let current;
+
+/* FIX OLD DATA */
+
+bookings = bookings.map(b => ({
+
+date: b.date || new Date().toLocaleDateString(),
+
+name: b.name || "",
+
+location: b.location || "",
+
+amount: b.amount || "",
+
+status: b.status || "upcoming",
+
+payment: b.payment || "pending"
+
+}));
+
+
+
+let currentIndex = null;
 
 
 
@@ -277,26 +556,26 @@ render();
 
 function render(){
 
-let box=document.getElementById("bookings");
+const box = document.getElementById("bookings");
 
-box.innerHTML="";
-
-
-bookings.forEach((b,i)=>{
+box.innerHTML = "";
 
 
-box.innerHTML+=`
+bookings.forEach((b, i) => {
 
-<div class="card" onclick="this.classList.toggle('active')">
+
+box.innerHTML += `
+
+<div class="card" onclick="toggle(this)">
 
 
 <div class="summary">
 
 <span>${b.date}</span>
 
-<span class="${b.status}">${b.status}</span>
+<span class="badge ${b.status}">${b.status}</span>
 
-<span class="${b.payment}">${b.payment}</span>
+<span class="badge ${b.payment}">${b.payment}</span>
 
 </div>
 
@@ -309,9 +588,9 @@ box.innerHTML+=`
 
 <p><b>Amount:</b> ₹${b.amount}</p>
 
-<button onclick="edit(event,${i})">Edit</button>
+<button class="edit" onclick="edit(event, ${i})">Edit</button>
 
-<button class="delete" onclick="removeBooking(event,${i})">Delete</button>
+<button class="delete" onclick="removeBooking(event, ${i})">Delete</button>
 
 </div>
 
@@ -326,6 +605,14 @@ box.innerHTML+=`
 
 
 
+function toggle(card){
+
+card.classList.toggle("active");
+
+}
+
+
+
 function openAdd(){
 
 addModal.style.display="flex";
@@ -334,26 +621,32 @@ addModal.style.display="flex";
 
 
 
-function add(){
+function addBooking(){
 
-let b={
+const booking = {
 
-date:new Date().toLocaleDateString(),
+date: new Date().toLocaleDateString(),
 
-name:name.value,
+name: name.value,
 
-location:location.value,
+location: location.value,
 
-amount:amount.value,
+amount: amount.value,
 
-status:"upcoming",
+status: "upcoming",
 
-payment:"pending"
+payment: "pending"
 
 };
 
 
-bookings.push(b);
+bookings.push(booking);
+
+
+name.value="";
+location.value="";
+amount.value="";
+
 
 addModal.style.display="none";
 
@@ -363,11 +656,11 @@ save();
 
 
 
-function edit(e,i){
+function edit(e, index){
 
 e.stopPropagation();
 
-current=i;
+currentIndex = index;
 
 editModal.style.display="flex";
 
@@ -377,9 +670,9 @@ editModal.style.display="flex";
 
 function saveEdit(){
 
-bookings[current].status=status.value;
+bookings[currentIndex].status = status.value;
 
-bookings[current].payment=payment.value;
+bookings[currentIndex].payment = payment.value;
 
 editModal.style.display="none";
 
@@ -389,20 +682,18 @@ save();
 
 
 
-function removeBooking(e,i){
+function removeBooking(e, index){
 
 e.stopPropagation();
 
-bookings.splice(i,1);
+bookings.splice(index, 1);
 
 save();
 
 }
 
 
-
 render();
-
 
 </script>
 
