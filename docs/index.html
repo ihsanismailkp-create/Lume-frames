@@ -8,7 +8,32 @@
 
 <title>Lume Frames</title>
 
+
+<!-- ICON FIX (VERY IMPORTANT) -->
+
+<link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png">
+
+<link rel="icon" type="image/png" href="./icon-180.png">
+
+<link rel="manifest" href="./manifest.json">
+
+<meta name="theme-color" content="#000000">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<meta name="apple-mobile-web-app-title" content="Lume Frames">
+
+
 <style>
+
+/* GLOBAL */
+
+*{
+box-sizing:border-box;
+}
+
+
+/* BODY */
 
 body{
 
@@ -19,14 +44,17 @@ display:flex;
 justify-content:center;
 align-items:center;
 
-font-family:Arial;
-
 background:#f4f4f2;
+
+font-family:Arial;
 
 opacity:0;
 animation:fadeIn 1s forwards;
 
 }
+
+
+/* FADE */
 
 @keyframes fadeIn{
 
@@ -36,6 +64,9 @@ opacity:1;
 
 }
 
+
+/* CONTAINER */
+
 .container{
 
 text-align:center;
@@ -43,6 +74,7 @@ text-align:center;
 animation:slideUp 1s;
 
 }
+
 
 @keyframes slideUp{
 
@@ -53,16 +85,27 @@ opacity:0;
 
 }
 
+to{
+
+transform:translateY(0);
+opacity:1;
+
+}
+
 }
 
 
+/* TITLE */
+
 h1{
 
-font-size:48px;
+font-size:42px;
 margin-bottom:10px;
 
 }
 
+
+/* SUBTITLE */
 
 p{
 
@@ -71,6 +114,8 @@ margin-bottom:30px;
 
 }
 
+
+/* BUTTON */
 
 button{
 
@@ -83,6 +128,8 @@ background:black;
 color:white;
 
 font-size:18px;
+
+cursor:pointer;
 
 transition:.2s;
 
@@ -97,17 +144,23 @@ transform:scale(.9);
 
 </style>
 
+
 </head>
 
 <body>
 
+
 <div class="container">
+
 
 <h1>Lume Frames</h1>
 
+
 <p>Your story, framed forever.</p>
 
+
 <a href="dashboard.html">
+
 
 <button>
 
@@ -115,9 +168,13 @@ Go to Dashboard
 
 </button>
 
+
 </a>
+
 
 </div>
 
+
 </body>
+
 </html>
