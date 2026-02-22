@@ -80,9 +80,17 @@ transform:translateY(10px);
 }
 
 .summary{
-display:flex;
-justify-content:space-between;
+
+display:grid;
+
+grid-template-columns: 1fr auto auto;
+
+gap:10px;
+
+align-items:center;
+
 font-weight:bold;
+
 }
 
 /* BADGES */
@@ -172,8 +180,13 @@ color:black;
 /* FIX DATE LOOK */
 
 input[type="date"]{
-appearance:auto;
--webkit-appearance:auto;
+
+width:100%;
+
+max-width:100%;
+
+overflow:hidden;
+
 }
 
 </style>
@@ -441,9 +454,15 @@ function editBooking(e,i){
 
 e.stopPropagation();
 
-currentIndex=i;
+currentIndex = i;
 
-editModal.style.display="flex";
+document.getElementById("status").value =
+bookings[i].status || "upcoming";
+
+document.getElementById("payment").value =
+bookings[i].payment || "pending";
+
+document.getElementById("editModal").style.display="flex";
 
 }
 
@@ -453,14 +472,14 @@ editModal.style.display="flex";
 function saveEdit(){
 
 bookings[currentIndex].status =
-status.value;
+document.getElementById("status").value;
 
 bookings[currentIndex].payment =
-payment.value;
-
-editModal.style.display="none";
+document.getElementById("payment").value;
 
 save();
+
+document.getElementById("editModal").style.display="none";
 
 }
 
