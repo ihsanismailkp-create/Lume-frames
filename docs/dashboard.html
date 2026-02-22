@@ -11,20 +11,19 @@
 <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#000000">
 
-
 <style>
 
-/* PAGE FADE IN */
+/* PAGE ANIMATION */
 
 body{
 
 margin:0;
-font-family:Arial, sans-serif;
+font-family:Arial;
 background:#f4f4f2;
 padding:20px;
 
 opacity:0;
-animation:fadeIn 0.6s ease forwards;
+animation:fadeIn 0.5s forwards;
 
 }
 
@@ -45,22 +44,6 @@ align-items:center;
 
 }
 
-h1{
-
-margin:0;
-font-size:28px;
-
-}
-
-.subtitle{
-
-color:#777;
-
-}
-
-
-/* PLUS BUTTON */
-
 .plus{
 
 background:black;
@@ -71,10 +54,10 @@ border-radius:50%;
 display:flex;
 justify-content:center;
 align-items:center;
-font-size:32px;
+font-size:30px;
 cursor:pointer;
 
-transition:transform 0.15s ease;
+transition:0.2s;
 
 }
 
@@ -91,7 +74,7 @@ transform:scale(0.85);
 
 display:flex;
 justify-content:space-between;
-margin-top:25px;
+margin-top:20px;
 color:#777;
 font-weight:bold;
 
@@ -107,15 +90,7 @@ padding:18px;
 border-radius:18px;
 margin-top:12px;
 
-animation:slideUp 0.4s ease;
-
-transition:transform 0.2s ease;
-
-}
-
-.card:active{
-
-transform:scale(0.98);
+animation:slideUp 0.3s ease;
 
 }
 
@@ -171,23 +146,21 @@ color:green;
 }
 
 
-/* DETAILS ANIMATION */
+/* DETAILS */
 
 .details{
 
 max-height:0;
 overflow:hidden;
 
-transition:max-height 0.4s ease;
-
-margin-top:0;
+transition:0.4s;
 
 }
 
 .card.active .details{
 
 max-height:200px;
-margin-top:15px;
+margin-top:10px;
 
 }
 
@@ -196,22 +169,13 @@ margin-top:15px;
 
 button{
 
-padding:12px;
+padding:10px;
 border:none;
 border-radius:10px;
 color:white;
-font-size:16px;
 margin-top:10px;
 margin-right:10px;
 cursor:pointer;
-
-transition:transform 0.15s ease;
-
-}
-
-button:active{
-
-transform:scale(0.92);
 
 }
 
@@ -250,8 +214,6 @@ background:rgba(0,0,0,0.4);
 justify-content:center;
 align-items:center;
 
-animation:fadeIn 0.3s ease;
-
 }
 
 .modal-box{
@@ -262,18 +224,13 @@ border-radius:15px;
 width:90%;
 max-width:350px;
 
-animation:slideUp 0.3s ease;
-
 }
 
-input, select{
+input,select{
 
 width:100%;
-padding:14px;
-font-size:16px;
-margin-bottom:12px;
-border-radius:10px;
-border:1px solid #ccc;
+padding:12px;
+margin-bottom:10px;
 
 }
 
@@ -286,20 +243,11 @@ border:1px solid #ccc;
 
 <div class="header">
 
-<div>
-
-<h1>Lume Frames</h1>
-
-<div class="subtitle">Dashboard</div>
-
-</div>
-
+<h2>Lume Frames</h2>
 
 <div class="plus" onclick="openAdd()">+</div>
 
-
 </div>
-
 
 
 <div class="titles">
@@ -311,7 +259,6 @@ border:1px solid #ccc;
 <span>Payment</span>
 
 </div>
-
 
 
 <div id="bookings"></div>
@@ -334,7 +281,7 @@ border:1px solid #ccc;
 
 <input type="number" id="amount" placeholder="Amount">
 
-<button class="save-btn" onclick="addBooking()">Add Booking</button>
+<button class="save-btn" onclick="addBooking()">Add</button>
 
 </div>
 
@@ -348,11 +295,12 @@ border:1px solid #ccc;
 
 <div class="modal-box">
 
-<h3>Edit Booking</h3>
+<h3>Edit</h3>
 
 <select id="status">
 
 <option value="upcoming">Upcoming</option>
+
 <option value="completed">Completed</option>
 
 </select>
@@ -361,6 +309,7 @@ border:1px solid #ccc;
 <select id="payment">
 
 <option value="pending">Pending</option>
+
 <option value="paid">Paid</option>
 
 </select>
@@ -386,7 +335,7 @@ let currentIndex;
 
 function save(){
 
-localStorage.setItem("lume", JSON.stringify(bookings));
+localStorage.setItem("lume",JSON.stringify(bookings));
 
 render();
 
@@ -405,28 +354,41 @@ box.innerHTML="";
 bookings.forEach((b,i)=>{
 
 
+let date=b.date || "-";
+
+let name=b.name || "-";
+
+let location=b.location || "-";
+
+let amount=b.amount || "-";
+
+let status=b.status || "upcoming";
+
+let payment=b.payment || "pending";
+
+
 box.innerHTML+=`
 
 <div class="card" onclick="toggleCard(this)">
 
 <div class="summary">
 
-<span>${b.date || "-"}</span>
+<span>${date}</span>
 
-<span class="badge ${b.status}">${b.status}</span>
+<span class="badge ${status}">${status}</span>
 
-<span class="badge ${b.payment}">${b.payment}</span>
+<span class="badge ${payment}">${payment}</span>
 
 </div>
 
 
 <div class="details">
 
-<p><b>Client:</b> ${b.name || "-"}</p>
+<p><b>Client:</b> ${name}</p>
 
-<p><b>Location:</b> ${b.location || "-"}</p>
+<p><b>Location:</b> ${location}</p>
 
-<p><b>Amount:</b> ₹${b.amount || "-"}</p>
+<p><b>Amount:</b> ₹${amount}</p>
 
 <button class="edit" onclick="editBooking(event,${i})">Edit</button>
 
@@ -443,7 +405,6 @@ box.innerHTML+=`
 }
 
 
-
 /* TOGGLE */
 
 function toggleCard(card){
@@ -457,27 +418,28 @@ card.classList.toggle("active");
 
 function openAdd(){
 
-document.getElementById("addModal").style.display="flex";
+addModal.style.display="flex";
 
-date.valueAsNumber =
-Date.now() - (new Date().getTimezoneOffset() * 60000);
+document.getElementById("date").valueAsNumber=
+
+Date.now()-(new Date().getTimezoneOffset()*60000);
 
 }
 
 
-/* ADD */
+/* ADD BOOKING */
 
 function addBooking(){
 
 let booking={
 
-date:date.value,
+date:document.getElementById("date").value,
 
-name:name.value,
+name:document.getElementById("name").value,
 
-location:location.value,
+location:document.getElementById("location").value,
 
-amount:amount.value,
+amount:document.getElementById("amount").value,
 
 status:"upcoming",
 
@@ -489,13 +451,14 @@ payment:"pending"
 bookings.push(booking);
 
 
-name.value="";
-location.value="";
-amount.value="";
+document.getElementById("name").value="";
+
+document.getElementById("location").value="";
+
+document.getElementById("amount").value="";
 
 
 addModal.style.display="none";
-
 
 save();
 
@@ -519,9 +482,14 @@ editModal.style.display="flex";
 
 function saveEdit(){
 
-bookings[currentIndex].status=status.value;
+bookings[currentIndex].status=
 
-bookings[currentIndex].payment=payment.value;
+document.getElementById("status").value;
+
+bookings[currentIndex].payment=
+
+document.getElementById("payment").value;
+
 
 editModal.style.display="none";
 
