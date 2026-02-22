@@ -9,22 +9,24 @@
 
 <style>
 
-/* CRITICAL FIX */
+/* GLOBAL FIX */
+
 *{
 box-sizing:border-box;
 }
+
 
 /* PAGE */
 
 body{
 
 margin:0;
-font-family:Arial;
+font-family:Arial, sans-serif;
 background:#f4f4f2;
 padding:20px;
 
 opacity:0;
-animation:fadeIn 0.5s forwards;
+animation:fadeIn .4s forwards;
 
 }
 
@@ -47,16 +49,18 @@ align-items:center;
 
 background:black;
 color:white;
+
 width:50px;
 height:50px;
+
 border-radius:50%;
+
 display:flex;
 justify-content:center;
 align-items:center;
+
 font-size:30px;
 cursor:pointer;
-
-transition:.2s;
 
 }
 
@@ -71,7 +75,9 @@ transform:scale(.85);
 
 display:flex;
 justify-content:space-between;
+
 margin-top:20px;
+
 color:#777;
 font-weight:bold;
 
@@ -84,7 +90,9 @@ font-weight:bold;
 
 background:#e9e9e7;
 padding:18px;
+
 border-radius:18px;
+
 margin-top:12px;
 
 animation:slideUp .3s;
@@ -97,6 +105,16 @@ from{
 opacity:0;
 transform:translateY(15px);
 }
+
+}
+
+
+.summary{
+
+display:flex;
+justify-content:space-between;
+
+font-weight:bold;
 
 }
 
@@ -143,30 +161,69 @@ margin-top:10px;
 }
 
 
+/* BUTTONS */
+
+button{
+
+padding:10px 14px;
+
+border:none;
+border-radius:10px;
+
+color:white;
+cursor:pointer;
+
+margin-top:10px;
+margin-right:10px;
+
+}
+
+.edit{
+background:black;
+}
+
+.delete{
+background:red;
+}
+
+.save{
+background:black;
+width:100%;
+}
+
+
 /* MODAL */
 
 .modal{
 
 display:none;
+
 position:fixed;
+
 top:0;
 left:0;
+
 width:100%;
 height:100%;
 
 background:rgba(0,0,0,.4);
 
-padding:20px;
-
 justify-content:center;
 align-items:center;
 
+padding:20px;
+
 }
+
+
+/* MODAL BOX */
 
 .modal-box{
 
 background:white;
+
 padding:20px;
+
 border-radius:15px;
 
 width:100%;
@@ -180,40 +237,21 @@ max-width:350px;
 input,select{
 
 width:100%;
+
 padding:14px;
+
 margin-bottom:12px;
 
-border-radius:12px;
-border:1px solid #ddd;
+border-radius:10px;
+
+border:1px solid #ccc;
 
 font-size:16px;
 
-display:block;
+background:white;
 
-}
+color:black;
 
-
-/* BUTTON */
-
-button{
-
-padding:12px;
-border:none;
-border-radius:10px;
-color:white;
-background:black;
-
-width:100%;
-
-}
-
-.delete{
-background:red;
-width:auto;
-}
-
-.edit{
-width:auto;
 }
 
 </style>
@@ -235,7 +273,9 @@ width:auto;
 <div class="titles">
 
 <span>Date</span>
+
 <span>Status</span>
+
 <span>Payment</span>
 
 </div>
@@ -244,7 +284,8 @@ width:auto;
 <div id="bookings"></div>
 
 
-<!-- ADD -->
+
+<!-- ADD MODAL -->
 
 <div class="modal" id="addModal">
 
@@ -260,26 +301,66 @@ width:auto;
 
 <input type="number" id="amount" placeholder="Amount">
 
-<button onclick="addBooking()">Add</button>
+<button class="save" onclick="addBooking()">Add Booking</button>
 
 </div>
 
 </div>
+
+
+
+<!-- EDIT MODAL -->
+
+<div class="modal" id="editModal">
+
+<div class="modal-box">
+
+<h3>Edit Booking</h3>
+
+<select id="status">
+
+<option value="upcoming">Upcoming</option>
+
+<option value="completed">Completed</option>
+
+</select>
+
+<select id="payment">
+
+<option value="pending">Pending</option>
+
+<option value="paid">Paid</option>
+
+</select>
+
+<button class="save" onclick="saveEdit()">Save</button>
+
+</div>
+
+</div>
+
 
 
 <script>
 
 
-let bookings=JSON.parse(localStorage.getItem("lume"))||[];
+let bookings = JSON.parse(localStorage.getItem("lume")) || [];
 
+let currentIndex = null;
+
+
+/* SAVE */
 
 function save(){
 
 localStorage.setItem("lume",JSON.stringify(bookings));
+
 render();
 
 }
 
+
+/* RENDER */
 
 function render(){
 
@@ -287,29 +368,49 @@ let box=document.getElementById("bookings");
 
 box.innerHTML="";
 
+
 bookings.forEach((b,i)=>{
+
+
+let date = b.date ? b.date : "-";
+
+let name = b.name ? b.name : "-";
+
+let location = b.location ? b.location : "-";
+
+let amount = b.amount ? b.amount : "-";
+
+let status = b.status ? b.status : "upcoming";
+
+let payment = b.payment ? b.payment : "pending";
+
 
 box.innerHTML+=`
 
-<div class="card" onclick="this.classList.toggle('active')">
+<div class="card" onclick="toggleCard(this)">
 
-<div style="display:flex;justify-content:space-between;">
+<div class="summary">
 
-<span>${b.date||"-"}</span>
+<span>${date}</span>
 
-<span class="badge ${b.status||"upcoming"}">${b.status||"upcoming"}</span>
+<span class="badge ${status}">${status}</span>
 
-<span class="badge ${b.payment||"pending"}">${b.payment||"pending"}</span>
+<span class="badge ${payment}">${payment}</span>
 
 </div>
 
+
 <div class="details">
 
-<p>Client: ${b.name||"-"}</p>
+<p><b>Client:</b> ${name}</p>
 
-<p>Location: ${b.location||"-"}</p>
+<p><b>Location:</b> ${location}</p>
 
-<p>Amount: ₹${b.amount||"-"}</p>
+<p><b>Amount:</b> ₹${amount}</p>
+
+<button class="edit" onclick="editBooking(event,${i})">Edit</button>
+
+<button class="delete" onclick="deleteBooking(event,${i})">Delete</button>
 
 </div>
 
@@ -322,6 +423,17 @@ box.innerHTML+=`
 }
 
 
+/* TOGGLE */
+
+function toggleCard(card){
+
+card.classList.toggle("active");
+
+}
+
+
+/* OPEN ADD */
+
 function openAdd(){
 
 addModal.style.display="flex";
@@ -331,21 +443,77 @@ date.valueAsNumber=Date.now();
 }
 
 
+/* ADD */
+
 function addBooking(){
 
-bookings.push({
+let booking={
 
-date:date.value,
-name:name.value,
-location:location.value,
-amount:amount.value,
+date:document.getElementById("date").value,
+
+name:document.getElementById("name").value,
+
+location:document.getElementById("location").value,
+
+amount:document.getElementById("amount").value,
 
 status:"upcoming",
+
 payment:"pending"
 
-});
+};
+
+
+bookings.push(booking);
+
 
 addModal.style.display="none";
+
+save();
+
+}
+
+
+/* EDIT */
+
+function editBooking(e,i){
+
+e.stopPropagation();
+
+currentIndex=i;
+
+editModal.style.display="flex";
+
+}
+
+
+/* SAVE EDIT */
+
+function saveEdit(){
+
+bookings[currentIndex].status=
+
+document.getElementById("status").value;
+
+bookings[currentIndex].payment=
+
+document.getElementById("payment").value;
+
+
+editModal.style.display="none";
+
+save();
+
+}
+
+
+/* DELETE */
+
+function deleteBooking(e,i){
+
+e.stopPropagation();
+
+bookings.splice(i,1);
 
 save();
 
@@ -355,6 +523,7 @@ save();
 render();
 
 </script>
+
 
 </body>
 </html>
