@@ -11,6 +11,7 @@
 <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#000000">
 
+
 <style>
 
 /* PAGE ANIMATION */
@@ -18,19 +19,17 @@
 body{
 
 margin:0;
-font-family:Arial;
+font-family:Arial, sans-serif;
 background:#f4f4f2;
 padding:20px;
 
 opacity:0;
-animation:fadeIn 0.5s forwards;
+animation:fadeIn 0.4s forwards;
 
 }
 
 @keyframes fadeIn{
-
 to{opacity:1;}
-
 }
 
 
@@ -57,14 +56,12 @@ align-items:center;
 font-size:30px;
 cursor:pointer;
 
-transition:0.2s;
+transition:0.15s;
 
 }
 
 .plus:active{
-
 transform:scale(0.85);
-
 }
 
 
@@ -97,17 +94,13 @@ animation:slideUp 0.3s ease;
 @keyframes slideUp{
 
 from{
-
 opacity:0;
-transform:translateY(20px);
-
+transform:translateY(15px);
 }
 
 to{
-
 opacity:1;
 transform:translateY(0);
-
 }
 
 }
@@ -159,7 +152,7 @@ transition:0.4s;
 
 .card.active .details{
 
-max-height:200px;
+max-height:250px;
 margin-top:10px;
 
 }
@@ -169,7 +162,7 @@ margin-top:10px;
 
 button{
 
-padding:10px;
+padding:12px;
 border:none;
 border-radius:10px;
 color:white;
@@ -180,59 +173,87 @@ cursor:pointer;
 }
 
 .edit{
-
 background:black;
-
 }
 
 .delete{
-
 background:red;
-
 }
 
 .save-btn{
-
 background:black;
 width:100%;
-
 }
 
 
-/* MODAL */
+/* MODAL FIXED */
 
 .modal{
 
 display:none;
 position:fixed;
+
 top:0;
 left:0;
+
 width:100%;
 height:100%;
+
 background:rgba(0,0,0,0.4);
 
 justify-content:center;
 align-items:center;
 
+padding:20px;
+
+box-sizing:border-box;
+
 }
+
 
 .modal-box{
 
 background:white;
+
 padding:20px;
+
 border-radius:15px;
-width:90%;
-max-width:350px;
-
-}
-
-input,select{
 
 width:100%;
-padding:12px;
-margin-bottom:10px;
+max-width:350px;
+
+box-sizing:border-box;
+
+animation:slideUp 0.3s ease;
 
 }
+
+
+/* INPUT FIX FINAL */
+
+.modal-box input,
+.modal-box select{
+
+width:100%;
+
+padding:14px;
+
+margin-bottom:12px;
+
+border-radius:12px;
+
+border:1px solid #ddd;
+
+font-size:16px;
+
+box-sizing:border-box;
+
+display:block;
+
+background:white;
+
+}
+
 
 </style>
 
@@ -295,7 +316,7 @@ margin-bottom:10px;
 
 <div class="modal-box">
 
-<h3>Edit</h3>
+<h3>Edit Booking</h3>
 
 <select id="status">
 
@@ -328,21 +349,21 @@ margin-bottom:10px;
 
 let bookings = JSON.parse(localStorage.getItem("lume")) || [];
 
-let currentIndex;
+let currentIndex = null;
 
 
 /* SAVE */
 
 function save(){
 
-localStorage.setItem("lume",JSON.stringify(bookings));
+localStorage.setItem("lume", JSON.stringify(bookings));
 
 render();
 
 }
 
 
-/* RENDER */
+/* RENDER FIXED */
 
 function render(){
 
@@ -354,20 +375,20 @@ box.innerHTML="";
 bookings.forEach((b,i)=>{
 
 
-let date=b.date || "-";
+let date = b.date || "-";
 
-let name=b.name || "-";
+let name = b.name || "-";
 
-let location=b.location || "-";
+let location = b.location || "-";
 
-let amount=b.amount || "-";
+let amount = b.amount || "-";
 
-let status=b.status || "upcoming";
+let status = b.status || "upcoming";
 
-let payment=b.payment || "pending";
+let payment = b.payment || "pending";
 
 
-box.innerHTML+=`
+box.innerHTML += `
 
 <div class="card" onclick="toggleCard(this)">
 
@@ -418,28 +439,29 @@ card.classList.toggle("active");
 
 function openAdd(){
 
-addModal.style.display="flex";
+document.getElementById("addModal").style.display="flex";
 
-document.getElementById("date").valueAsNumber=
+
+document.getElementById("date").valueAsNumber =
 
 Date.now()-(new Date().getTimezoneOffset()*60000);
 
 }
 
 
-/* ADD BOOKING */
+/* ADD BOOKING FIXED */
 
 function addBooking(){
 
-let booking={
+const booking = {
 
-date:document.getElementById("date").value,
+date: document.getElementById("date").value,
 
-name:document.getElementById("name").value,
+name: document.getElementById("name").value.trim(),
 
-location:document.getElementById("location").value,
+location: document.getElementById("location").value.trim(),
 
-amount:document.getElementById("amount").value,
+amount: document.getElementById("amount").value.trim(),
 
 status:"upcoming",
 
@@ -458,7 +480,8 @@ document.getElementById("location").value="";
 document.getElementById("amount").value="";
 
 
-addModal.style.display="none";
+document.getElementById("addModal").style.display="none";
+
 
 save();
 
@@ -473,7 +496,7 @@ e.stopPropagation();
 
 currentIndex=i;
 
-editModal.style.display="flex";
+document.getElementById("editModal").style.display="flex";
 
 }
 
@@ -482,16 +505,16 @@ editModal.style.display="flex";
 
 function saveEdit(){
 
-bookings[currentIndex].status=
+bookings[currentIndex].status =
 
 document.getElementById("status").value;
 
-bookings[currentIndex].payment=
+bookings[currentIndex].payment =
 
 document.getElementById("payment").value;
 
 
-editModal.style.display="none";
+document.getElementById("editModal").style.display="none";
 
 save();
 
