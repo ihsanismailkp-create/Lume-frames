@@ -4,36 +4,65 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="favicon.png" sizes="any">
-<link rel="apple-touch-icon" href="favicon.png">
-  
+
 <title>Lume Frames Dashboard</title>
+
+<link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png">
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#000000">
+
 
 <style>
 
+/* PAGE FADE IN */
+
 body{
+
 margin:0;
 font-family:Arial, sans-serif;
 background:#f4f4f2;
 padding:20px;
+
+opacity:0;
+animation:fadeIn 0.6s ease forwards;
+
 }
 
+@keyframes fadeIn{
+
+to{opacity:1;}
+
+}
+
+
+/* HEADER */
+
 .header{
+
 display:flex;
 justify-content:space-between;
 align-items:center;
+
 }
 
 h1{
+
 margin:0;
 font-size:28px;
+
 }
 
 .subtitle{
+
 color:#777;
+
 }
 
+
+/* PLUS BUTTON */
+
 .plus{
+
 background:black;
 color:white;
 width:50px;
@@ -44,66 +73,129 @@ justify-content:center;
 align-items:center;
 font-size:32px;
 cursor:pointer;
+
+transition:transform 0.15s ease;
+
 }
+
+.plus:active{
+
+transform:scale(0.85);
+
+}
+
 
 /* TITLES */
 
 .titles{
+
 display:flex;
 justify-content:space-between;
 margin-top:25px;
 color:#777;
 font-weight:bold;
+
 }
+
 
 /* CARD */
 
 .card{
+
 background:#e9e9e7;
 padding:18px;
 border-radius:18px;
 margin-top:12px;
+
+animation:slideUp 0.4s ease;
+
+transition:transform 0.2s ease;
+
 }
 
+.card:active{
+
+transform:scale(0.98);
+
+}
+
+@keyframes slideUp{
+
+from{
+
+opacity:0;
+transform:translateY(20px);
+
+}
+
+to{
+
+opacity:1;
+transform:translateY(0);
+
+}
+
+}
+
+
 .summary{
+
 display:flex;
 justify-content:space-between;
 font-weight:bold;
-font-size:16px;
+
 }
+
 
 /* BADGES */
 
 .badge{
+
 padding:4px 10px;
 border-radius:8px;
+
 }
 
 .upcoming,.pending{
+
 background:#ffd6d6;
 color:red;
+
 }
 
 .completed,.paid{
+
 background:#d6f5dc;
 color:green;
+
 }
 
-/* DETAILS */
+
+/* DETAILS ANIMATION */
 
 .details{
-display:none;
-margin-top:15px;
-font-size:16px;
+
+max-height:0;
+overflow:hidden;
+
+transition:max-height 0.4s ease;
+
+margin-top:0;
+
 }
 
 .card.active .details{
-display:block;
+
+max-height:200px;
+margin-top:15px;
+
 }
+
 
 /* BUTTONS */
 
 button{
+
 padding:12px;
 border:none;
 border-radius:10px;
@@ -112,24 +204,41 @@ font-size:16px;
 margin-top:10px;
 margin-right:10px;
 cursor:pointer;
+
+transition:transform 0.15s ease;
+
+}
+
+button:active{
+
+transform:scale(0.92);
+
 }
 
 .edit{
+
 background:black;
+
 }
 
 .delete{
+
 background:red;
+
 }
 
 .save-btn{
+
 background:black;
 width:100%;
+
 }
+
 
 /* MODAL */
 
 .modal{
+
 display:none;
 position:fixed;
 top:0;
@@ -137,26 +246,35 @@ left:0;
 width:100%;
 height:100%;
 background:rgba(0,0,0,0.4);
+
 justify-content:center;
 align-items:center;
-padding:15px;
+
+animation:fadeIn 0.3s ease;
+
 }
 
 .modal-box{
+
 background:white;
 padding:20px;
 border-radius:15px;
-width:100%;
+width:90%;
 max-width:350px;
+
+animation:slideUp 0.3s ease;
+
 }
 
 input, select{
+
 width:100%;
 padding:14px;
 font-size:16px;
 margin-bottom:12px;
 border-radius:10px;
 border:1px solid #ccc;
+
 }
 
 </style>
@@ -169,22 +287,31 @@ border:1px solid #ccc;
 <div class="header">
 
 <div>
+
 <h1>Lume Frames</h1>
+
 <div class="subtitle">Dashboard</div>
+
 </div>
+
 
 <div class="plus" onclick="openAdd()">+</div>
 
+
 </div>
+
 
 
 <div class="titles">
 
 <span>Date</span>
+
 <span>Status</span>
+
 <span>Payment</span>
 
 </div>
+
 
 
 <div id="bookings"></div>
@@ -230,12 +357,14 @@ border:1px solid #ccc;
 
 </select>
 
+
 <select id="payment">
 
 <option value="pending">Pending</option>
 <option value="paid">Paid</option>
 
 </select>
+
 
 <button class="save-btn" onclick="saveEdit()">Save</button>
 
@@ -250,7 +379,7 @@ border:1px solid #ccc;
 
 let bookings = JSON.parse(localStorage.getItem("lume")) || [];
 
-let currentIndex = null;
+let currentIndex;
 
 
 /* SAVE */
@@ -330,28 +459,25 @@ function openAdd(){
 
 document.getElementById("addModal").style.display="flex";
 
-
-/* auto today */
-
-document.getElementById("date").valueAsNumber =
+date.valueAsNumber =
 Date.now() - (new Date().getTimezoneOffset() * 60000);
 
 }
 
 
-/* ADD BOOKING */
+/* ADD */
 
 function addBooking(){
 
-const booking={
+let booking={
 
-date: document.getElementById("date").value,
+date:date.value,
 
-name: document.getElementById("name").value,
+name:name.value,
 
-location: document.getElementById("location").value,
+location:location.value,
 
-amount: document.getElementById("amount").value,
+amount:amount.value,
 
 status:"upcoming",
 
@@ -363,16 +489,12 @@ payment:"pending"
 bookings.push(booking);
 
 
-/* clear */
-
-document.getElementById("name").value="";
-
-document.getElementById("location").value="";
-
-document.getElementById("amount").value="";
+name.value="";
+location.value="";
+amount.value="";
 
 
-document.getElementById("addModal").style.display="none";
+addModal.style.display="none";
 
 
 save();
@@ -382,13 +504,13 @@ save();
 
 /* EDIT */
 
-function editBooking(event,index){
+function editBooking(e,i){
 
-event.stopPropagation();
+e.stopPropagation();
 
-currentIndex=index;
+currentIndex=i;
 
-document.getElementById("editModal").style.display="flex";
+editModal.style.display="flex";
 
 }
 
@@ -397,11 +519,11 @@ document.getElementById("editModal").style.display="flex";
 
 function saveEdit(){
 
-bookings[currentIndex].status=document.getElementById("status").value;
+bookings[currentIndex].status=status.value;
 
-bookings[currentIndex].payment=document.getElementById("payment").value;
+bookings[currentIndex].payment=payment.value;
 
-document.getElementById("editModal").style.display="none";
+editModal.style.display="none";
 
 save();
 
@@ -410,11 +532,11 @@ save();
 
 /* DELETE */
 
-function deleteBooking(event,index){
+function deleteBooking(e,i){
 
-event.stopPropagation();
+e.stopPropagation();
 
-bookings.splice(index,1);
+bookings.splice(i,1);
 
 save();
 
