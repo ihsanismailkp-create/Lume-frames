@@ -13,168 +13,127 @@
 
 *{
 box-sizing:border-box;
-min-width:0;
 }
-
 
 /* BODY */
 
 body{
-
 margin:0;
-font-family:Arial, sans-serif;
+font-family:Arial;
 background:#f4f4f2;
 padding:20px;
 
 opacity:0;
-animation:fadeIn .4s forwards;
-
+animation:fade .4s forwards;
 }
 
-@keyframes fadeIn{
+@keyframes fade{
 to{opacity:1;}
 }
-
 
 /* HEADER */
 
 .header{
-
 display:flex;
 justify-content:space-between;
 align-items:center;
-
 }
 
 .plus{
-
-background:black;
-color:white;
-
 width:50px;
 height:50px;
-
 border-radius:50%;
-
+background:black;
+color:white;
+font-size:30px;
 display:flex;
 justify-content:center;
 align-items:center;
-
-font-size:30px;
 cursor:pointer;
-
 }
-
 
 /* TITLES */
 
 .titles{
-
 display:flex;
 justify-content:space-between;
 margin-top:20px;
 color:#777;
 font-weight:bold;
-
 }
-
 
 /* CARD */
 
 .card{
-
 background:#e9e9e7;
 padding:18px;
 border-radius:18px;
 margin-top:12px;
-
-animation:slideUp .3s;
-
+animation:slide .3s;
 }
 
-@keyframes slideUp{
-
+@keyframes slide{
 from{
 opacity:0;
-transform:translateY(15px);
+transform:translateY(10px);
 }
-
 }
-
 
 .summary{
-
 display:flex;
 justify-content:space-between;
 font-weight:bold;
-
 }
-
 
 /* BADGES */
 
 .badge{
-
 padding:4px 10px;
 border-radius:8px;
-
 }
 
 .upcoming,.pending{
-
 background:#ffd6d6;
 color:red;
-
 }
 
 .completed,.paid{
-
 background:#d6f5dc;
 color:green;
-
 }
-
 
 /* DETAILS */
 
 .details{
-
 max-height:0;
 overflow:hidden;
-transition:.4s;
-
+transition:.3s;
 }
 
 .card.active .details{
-
-max-height:250px;
+max-height:200px;
 margin-top:10px;
-
 }
-
 
 /* BUTTONS */
 
 button{
-
-padding:10px 14px;
+padding:10px;
 border:none;
 border-radius:10px;
 color:white;
-cursor:pointer;
 margin-top:10px;
-
+margin-right:10px;
+cursor:pointer;
 }
 
 .edit{background:black;}
 .delete{background:red;}
 .save{background:black;width:100%;}
 
-
 /* MODAL */
 
 .modal{
-
 display:none;
 position:fixed;
 top:0;
@@ -182,60 +141,39 @@ left:0;
 width:100%;
 height:100%;
 background:rgba(0,0,0,.4);
-
 justify-content:center;
 align-items:center;
-
 padding:20px;
-
 }
 
 .modal-box{
-
 background:white;
 padding:20px;
 border-radius:15px;
 width:100%;
 max-width:350px;
-
 }
 
+/* INPUTS */
 
-/* CUSTOM DATE INPUT */
-
-.date-display{
+input,select{
 
 width:100%;
 padding:14px;
-border:1px solid #ccc;
-border-radius:10px;
 margin-bottom:12px;
+border-radius:10px;
+border:1px solid #ccc;
+font-size:16px;
 background:white;
-cursor:pointer;
+color:black;
 
 }
 
-.hidden-date{
+/* FIX DATE LOOK */
 
-position:absolute;
-opacity:0;
-pointer-events:none;
-
-}
-
-
-/* INPUT */
-
-input[type=text],
-input[type=number],
-select{
-
-width:100%;
-padding:14px;
-margin-bottom:12px;
-border-radius:10px;
-border:1px solid #ccc;
-
+input[type="date"]{
+appearance:auto;
+-webkit-appearance:auto;
 }
 
 </style>
@@ -266,7 +204,6 @@ border:1px solid #ccc;
 <div id="bookings"></div>
 
 
-
 <!-- ADD MODAL -->
 
 <div class="modal" id="addModal">
@@ -275,18 +212,7 @@ border:1px solid #ccc;
 
 <h3>Add Booking</h3>
 
-
-<div class="date-display" onclick="openDate()"
-id="dateDisplay">
-
-Select Date
-
-</div>
-
-<input type="date" id="date"
-class="hidden-date"
-onchange="updateDateDisplay()">
-
+<input type="date" id="date">
 
 <input type="text" id="name" placeholder="Client Name">
 
@@ -295,15 +221,12 @@ onchange="updateDateDisplay()">
 <input type="number" id="amount" placeholder="Amount">
 
 <button class="save" onclick="addBooking()">
-
 Add Booking
-
 </button>
 
 </div>
 
 </div>
-
 
 
 <!-- EDIT MODAL -->
@@ -331,9 +254,7 @@ Add Booking
 
 
 <button class="save" onclick="saveEdit()">
-
 Save
-
 </button>
 
 </div>
@@ -341,14 +262,13 @@ Save
 </div>
 
 
-
 <script>
 
 
-let bookings=
+let bookings =
 JSON.parse(localStorage.getItem("lume")) || [];
 
-let currentIndex=null;
+let currentIndex = null;
 
 
 /* SAVE */
@@ -365,11 +285,13 @@ render();
 
 /* FORMAT DATE */
 
-function formatDate(date){
+function formatDate(d){
 
-let d=new Date(date);
+if(!d) return "-";
 
-return d.toLocaleDateString(
+let date=new Date(d);
+
+return date.toLocaleDateString(
 "en-GB",
 {day:"2-digit",month:"short",year:"numeric"});
 
@@ -384,39 +306,39 @@ let box=document.getElementById("bookings");
 
 box.innerHTML="";
 
-
 bookings.forEach((b,i)=>{
 
+let safe={
 
-let date=b.date?
-formatDate(b.date):"-";
+date:b.date||"",
 
-let name=b.name||"-";
+name:b.name||"-",
 
-let location=b.location||"-";
+location:b.location||"-",
 
-let amount=b.amount||"-";
+amount:b.amount||"-",
 
-let status=b.status||"upcoming";
+status:b.status||"upcoming",
 
-let payment=b.payment||"pending";
+payment:b.payment||"pending"
 
+};
 
 box.innerHTML+=`
 
 <div class="card"
-onclick="toggleCard(this)">
+onclick="this.classList.toggle('active')">
 
 <div class="summary">
 
-<span>${date}</span>
+<span>${formatDate(safe.date)}</span>
 
-<span class="badge ${status}">
-${status}
+<span class="badge ${safe.status}">
+${safe.status}
 </span>
 
-<span class="badge ${payment}">
-${payment}
+<span class="badge ${safe.payment}">
+${safe.payment}
 </span>
 
 </div>
@@ -424,11 +346,11 @@ ${payment}
 
 <div class="details">
 
-<p><b>Client:</b> ${name}</p>
+<p><b>Client:</b> ${safe.name}</p>
 
-<p><b>Location:</b> ${location}</p>
+<p><b>Location:</b> ${safe.location}</p>
 
-<p><b>Amount:</b> ₹${amount}</p>
+<p><b>Amount:</b> ₹${safe.amount}</p>
 
 <button class="edit"
 onclick="editBooking(event,${i})">
@@ -451,61 +373,54 @@ Delete
 }
 
 
-/* TOGGLE */
-
-function toggleCard(card){
-
-card.classList.toggle("active");
-
-}
-
-
-/* DATE FUNCTIONS */
-
-function openDate(){
-
-document.getElementById("date").showPicker();
-
-}
-
-
-function updateDateDisplay(){
-
-let val=date.value;
-
-dateDisplay.innerText=formatDate(val);
-
-}
-
-
 /* OPEN ADD */
 
 function openAdd(){
 
 addModal.style.display="flex";
 
-let today=new Date().toISOString().split("T")[0];
-
-date.value=today;
-
-updateDateDisplay();
+date.value=new Date()
+.toISOString()
+.split("T")[0];
 
 }
 
 
-/* ADD BOOKING */
+/* ADD */
 
 function addBooking(){
 
+let nameVal =
+document.getElementById("name").value.trim();
+
+let locVal =
+document.getElementById("location").value.trim();
+
+let amtVal =
+document.getElementById("amount").value.trim();
+
+let dateVal =
+document.getElementById("date").value;
+
+
+if(!nameVal || !locVal){
+
+alert("Enter client and location");
+
+return;
+
+}
+
+
 bookings.push({
 
-date:date.value,
+date:dateVal,
 
-name:name.value,
+name:nameVal,
 
-location:location.value,
+location:locVal,
 
-amount:amount.value,
+amount:amtVal,
 
 status:"upcoming",
 
@@ -537,9 +452,11 @@ editModal.style.display="flex";
 
 function saveEdit(){
 
-bookings[currentIndex].status=status.value;
+bookings[currentIndex].status =
+status.value;
 
-bookings[currentIndex].payment=payment.value;
+bookings[currentIndex].payment =
+payment.value;
 
 editModal.style.display="none";
 
@@ -560,6 +477,8 @@ save();
 
 }
 
+
+/* START */
 
 render();
 
