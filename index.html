@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Lumeframes</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="manifest" href="manifest.json">
+
+<style>
+
+body{
+font-family: -apple-system;
+background:white;
+color:black;
+margin:20px;
+}
+
+h1{
+font-weight:500;
+}
+
+button{
+background:black;
+color:white;
+border:none;
+padding:12px;
+width:100%;
+margin-top:10px;
+}
+
+input{
+width:100%;
+padding:12px;
+margin-top:10px;
+border:1px solid #ddd;
+}
+
+.card{
+border:1px solid #eee;
+padding:15px;
+margin-top:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Lumeframes</h1>
+
+<input id="client" placeholder="Client Name">
+
+<input id="date" placeholder="Event Date">
+
+<input id="payment" placeholder="Payment">
+
+<button onclick="addBooking()">Add Booking</button>
+
+<div id="bookings"></div>
+
+<script>
+
+let bookings = JSON.parse(localStorage.getItem("lumebook")) || [];
+
+function showBookings(){
+
+document.getElementById("bookings").innerHTML="";
+
+bookings.forEach(b => {
+
+document.getElementById("bookings").innerHTML +=
+
+`<div class="card">
+
+${b.client}<br>
+${b.date}<br>
+₹${b.payment}
+
+</div>`
+
+})
+
+}
+
+function addBooking(){
+
+let client=document.getElementById("client").value;
+
+let date=document.getElementById("date").value;
+
+let payment=document.getElementById("payment").value;
+
+bookings.push({client,date,payment});
+
+localStorage.setItem("lumebook",JSON.stringify(bookings));
+
+showBookings();
+
+}
+
+showBookings();
+
+</script>
+
+</body>
+</html>
