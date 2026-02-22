@@ -11,12 +11,10 @@
 
 body{
 margin:0;
-font-family:Arial, sans-serif;
+font-family:Arial;
 background:#f4f4f2;
 padding:20px;
 }
-
-/* HEADER */
 
 .header{
 display:flex;
@@ -31,10 +29,7 @@ font-size:28px;
 
 .subtitle{
 color:#777;
-margin-top:5px;
 }
-
-/* PLUS */
 
 .plus{
 background:black;
@@ -49,7 +44,7 @@ font-size:30px;
 cursor:pointer;
 }
 
-/* COLUMN TITLES */
+/* TITLES */
 
 .titles{
 display:flex;
@@ -57,8 +52,6 @@ justify-content:space-between;
 margin-top:25px;
 color:#777;
 font-weight:bold;
-font-size:14px;
-padding:0 5px;
 }
 
 /* CARD */
@@ -74,35 +67,23 @@ margin-top:12px;
 display:flex;
 justify-content:space-between;
 font-weight:bold;
-font-size:16px;
 }
 
-/* STATUS BADGES */
+/* BADGES */
 
 .badge{
 padding:4px 10px;
 border-radius:8px;
-font-size:14px;
 }
 
-.upcoming{
+.upcoming,.pending{
 background:#ffd6d6;
-color:#d60000;
+color:red;
 }
 
-.pending{
-background:#ffd6d6;
-color:#d60000;
-}
-
-.completed{
+.completed,.paid{
 background:#d6f5dc;
-color:#0a8a2a;
-}
-
-.paid{
-background:#d6f5dc;
-color:#0a8a2a;
+color:green;
 }
 
 /* DETAILS */
@@ -110,7 +91,6 @@ color:#0a8a2a;
 .details{
 display:none;
 margin-top:15px;
-font-size:16px;
 }
 
 .card.active .details{
@@ -126,7 +106,6 @@ border-radius:10px;
 color:white;
 font-size:16px;
 margin-top:10px;
-margin-right:10px;
 }
 
 .edit{
@@ -149,19 +128,14 @@ height:100%;
 background:rgba(0,0,0,0.4);
 justify-content:center;
 align-items:center;
-padding:15px;
 }
 
 .modal-box{
 background:white;
 padding:20px;
 border-radius:15px;
-width:100%;
+width:90%;
 max-width:350px;
-}
-
-.modal-box h3{
-margin-top:0;
 }
 
 input, select{
@@ -185,8 +159,6 @@ width:100%;
 <body>
 
 
-<!-- HEADER -->
-
 <div class="header">
 
 <div>
@@ -199,8 +171,6 @@ width:100%;
 </div>
 
 
-<!-- TITLES -->
-
 <div class="titles">
 
 <span>Date</span>
@@ -209,8 +179,6 @@ width:100%;
 
 </div>
 
-
-<!-- BOOKINGS -->
 
 <div id="bookings"></div>
 
@@ -223,6 +191,8 @@ width:100%;
 <div class="modal-box">
 
 <h3>Add Booking</h3>
+
+<input type="date" id="date">
 
 <input id="name" placeholder="Client Name">
 
@@ -244,20 +214,16 @@ width:100%;
 
 <div class="modal-box">
 
-<h3>Edit Booking</h3>
+<h3>Edit</h3>
 
 <select id="status">
-
 <option value="upcoming">Upcoming</option>
 <option value="completed">Completed</option>
-
 </select>
 
 <select id="payment">
-
 <option value="pending">Pending</option>
 <option value="paid">Paid</option>
-
 </select>
 
 <button class="save-btn" onclick="saveEdit()">Save</button>
@@ -274,11 +240,11 @@ width:100%;
 let bookings = JSON.parse(localStorage.getItem("lume")) || [];
 
 
-/* FIX OLD DATA */
+/* FIX OLD BOOKINGS */
 
 bookings = bookings.map(b => ({
 
-date: b.date || new Date().toLocaleDateString(),
+date: b.date || "",
 
 name: b.name || "",
 
@@ -310,22 +276,21 @@ render();
 
 function render(){
 
-const box = document.getElementById("bookings");
+let box=document.getElementById("bookings");
 
-box.innerHTML = "";
-
-
-bookings.forEach((b, i) => {
+box.innerHTML="";
 
 
-box.innerHTML += `
+bookings.forEach((b,i)=>{
 
-<div class="card" onclick="toggle(this)">
 
+box.innerHTML+=`
+
+<div class="card" onclick="this.classList.toggle('active')">
 
 <div class="summary">
 
-<span>${b.date}</span>
+<span>${b.date || "-"}</span>
 
 <span class="badge ${b.status}">${b.status}</span>
 
@@ -336,18 +301,17 @@ box.innerHTML += `
 
 <div class="details">
 
-<p><b>Client:</b> ${b.name}</p>
+<p><b>Client:</b> ${b.name || "-"}</p>
 
-<p><b>Location:</b> ${b.location}</p>
+<p><b>Location:</b> ${b.location || "-"}</p>
 
-<p><b>Amount:</b> ₹${b.amount}</p>
+<p><b>Amount:</b> ₹${b.amount || "-"}</p>
 
-<button class="edit" onclick="edit(event, ${i})">Edit</button>
+<button class="edit" onclick="edit(event,${i})">Edit</button>
 
-<button class="delete" onclick="removeBooking(event, ${i})">Delete</button>
+<button class="delete" onclick="removeBooking(event,${i})">Delete</button>
 
 </div>
-
 
 </div>
 
@@ -359,17 +323,15 @@ box.innerHTML += `
 
 
 
-function toggle(card){
-
-card.classList.toggle("active");
-
-}
-
-
+/* ADD */
 
 function openAdd(){
 
 addModal.style.display="flex";
+
+/* auto today date */
+
+date.valueAsNumber = Date.now() - (new Date().getTimezoneOffset() * 60000);
 
 }
 
@@ -377,9 +339,9 @@ addModal.style.display="flex";
 
 function addBooking(){
 
-const booking = {
+let booking={
 
-date: new Date().toLocaleDateString(),
+date: date.value,
 
 name: name.value,
 
@@ -387,20 +349,14 @@ location: location.value,
 
 amount: amount.value,
 
-status: "upcoming",
+status:"upcoming",
 
-payment: "pending"
+payment:"pending"
 
 };
 
 
 bookings.push(booking);
-
-
-name.value="";
-location.value="";
-amount.value="";
-
 
 addModal.style.display="none";
 
@@ -410,23 +366,24 @@ save();
 
 
 
-function edit(e, index){
+/* EDIT */
+
+function edit(e,index){
 
 e.stopPropagation();
 
-currentIndex = index;
+currentIndex=index;
 
 editModal.style.display="flex";
 
 }
 
 
-
 function saveEdit(){
 
-bookings[currentIndex].status = status.value;
+bookings[currentIndex].status=status.value;
 
-bookings[currentIndex].payment = payment.value;
+bookings[currentIndex].payment=payment.value;
 
 editModal.style.display="none";
 
@@ -436,18 +393,22 @@ save();
 
 
 
-function removeBooking(e, index){
+/* DELETE */
+
+function removeBooking(e,index){
 
 e.stopPropagation();
 
-bookings.splice(index, 1);
+bookings.splice(index,1);
 
 save();
 
 }
 
 
+
 render();
+
 
 </script>
 
