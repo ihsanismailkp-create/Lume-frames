@@ -11,7 +11,7 @@
 
 body{
 margin:0;
-font-family:Arial;
+font-family:Arial, sans-serif;
 background:#f4f4f2;
 padding:20px;
 }
@@ -34,13 +34,13 @@ color:#777;
 .plus{
 background:black;
 color:white;
-width:48px;
-height:48px;
+width:50px;
+height:50px;
 border-radius:50%;
 display:flex;
 justify-content:center;
 align-items:center;
-font-size:30px;
+font-size:32px;
 cursor:pointer;
 }
 
@@ -67,6 +67,7 @@ margin-top:12px;
 display:flex;
 justify-content:space-between;
 font-weight:bold;
+font-size:16px;
 }
 
 /* BADGES */
@@ -91,6 +92,7 @@ color:green;
 .details{
 display:none;
 margin-top:15px;
+font-size:16px;
 }
 
 .card.active .details{
@@ -106,6 +108,8 @@ border-radius:10px;
 color:white;
 font-size:16px;
 margin-top:10px;
+margin-right:10px;
+cursor:pointer;
 }
 
 .edit{
@@ -114,6 +118,11 @@ background:black;
 
 .delete{
 background:red;
+}
+
+.save-btn{
+background:black;
+width:100%;
 }
 
 /* MODAL */
@@ -128,13 +137,14 @@ height:100%;
 background:rgba(0,0,0,0.4);
 justify-content:center;
 align-items:center;
+padding:15px;
 }
 
 .modal-box{
 background:white;
 padding:20px;
 border-radius:15px;
-width:90%;
+width:100%;
 max-width:350px;
 }
 
@@ -145,11 +155,6 @@ font-size:16px;
 margin-bottom:12px;
 border-radius:10px;
 border:1px solid #ccc;
-}
-
-.save-btn{
-background:black;
-width:100%;
 }
 
 </style>
@@ -194,11 +199,11 @@ width:100%;
 
 <input type="date" id="date">
 
-<input id="name" placeholder="Client Name">
+<input type="text" id="name" placeholder="Client Name">
 
-<input id="location" placeholder="Location">
+<input type="text" id="location" placeholder="Location">
 
-<input id="amount" placeholder="Amount">
+<input type="number" id="amount" placeholder="Amount">
 
 <button class="save-btn" onclick="addBooking()">Add Booking</button>
 
@@ -214,16 +219,20 @@ width:100%;
 
 <div class="modal-box">
 
-<h3>Edit</h3>
+<h3>Edit Booking</h3>
 
 <select id="status">
+
 <option value="upcoming">Upcoming</option>
 <option value="completed">Completed</option>
+
 </select>
 
 <select id="payment">
+
 <option value="pending">Pending</option>
 <option value="paid">Paid</option>
+
 </select>
 
 <button class="save-btn" onclick="saveEdit()">Save</button>
@@ -239,30 +248,10 @@ width:100%;
 
 let bookings = JSON.parse(localStorage.getItem("lume")) || [];
 
-
-/* FIX OLD BOOKINGS */
-
-bookings = bookings.map(b => ({
-
-date: b.date || "",
-
-name: b.name || "",
-
-location: b.location || "",
-
-amount: b.amount || "",
-
-status: b.status || "upcoming",
-
-payment: b.payment || "pending"
-
-}));
-
-
-
 let currentIndex = null;
 
 
+/* SAVE */
 
 function save(){
 
@@ -273,6 +262,7 @@ render();
 }
 
 
+/* RENDER */
 
 function render(){
 
@@ -286,7 +276,7 @@ bookings.forEach((b,i)=>{
 
 box.innerHTML+=`
 
-<div class="card" onclick="this.classList.toggle('active')">
+<div class="card" onclick="toggleCard(this)">
 
 <div class="summary">
 
@@ -307,9 +297,9 @@ box.innerHTML+=`
 
 <p><b>Amount:</b> ₹${b.amount || "-"}</p>
 
-<button class="edit" onclick="edit(event,${i})">Edit</button>
+<button class="edit" onclick="editBooking(event,${i})">Edit</button>
 
-<button class="delete" onclick="removeBooking(event,${i})">Delete</button>
+<button class="delete" onclick="deleteBooking(event,${i})">Delete</button>
 
 </div>
 
@@ -323,31 +313,43 @@ box.innerHTML+=`
 
 
 
-/* ADD */
+/* TOGGLE */
 
-function openAdd(){
+function toggleCard(card){
 
-addModal.style.display="flex";
-
-/* auto today date */
-
-date.valueAsNumber = Date.now() - (new Date().getTimezoneOffset() * 60000);
+card.classList.toggle("active");
 
 }
 
 
+/* OPEN ADD */
+
+function openAdd(){
+
+document.getElementById("addModal").style.display="flex";
+
+
+/* auto today */
+
+document.getElementById("date").valueAsNumber =
+Date.now() - (new Date().getTimezoneOffset() * 60000);
+
+}
+
+
+/* ADD BOOKING */
 
 function addBooking(){
 
-let booking={
+const booking={
 
-date: date.value,
+date: document.getElementById("date").value,
 
-name: name.value,
+name: document.getElementById("name").value,
 
-location: location.value,
+location: document.getElementById("location").value,
 
-amount: amount.value,
+amount: document.getElementById("amount").value,
 
 status:"upcoming",
 
@@ -358,46 +360,57 @@ payment:"pending"
 
 bookings.push(booking);
 
-addModal.style.display="none";
+
+/* clear */
+
+document.getElementById("name").value="";
+
+document.getElementById("location").value="";
+
+document.getElementById("amount").value="";
+
+
+document.getElementById("addModal").style.display="none";
+
 
 save();
 
 }
-
 
 
 /* EDIT */
 
-function edit(e,index){
+function editBooking(event,index){
 
-e.stopPropagation();
+event.stopPropagation();
 
 currentIndex=index;
 
-editModal.style.display="flex";
+document.getElementById("editModal").style.display="flex";
 
 }
 
 
+/* SAVE EDIT */
+
 function saveEdit(){
 
-bookings[currentIndex].status=status.value;
+bookings[currentIndex].status=document.getElementById("status").value;
 
-bookings[currentIndex].payment=payment.value;
+bookings[currentIndex].payment=document.getElementById("payment").value;
 
-editModal.style.display="none";
+document.getElementById("editModal").style.display="none";
 
 save();
 
 }
 
 
-
 /* DELETE */
 
-function removeBooking(e,index){
+function deleteBooking(event,index){
 
-e.stopPropagation();
+event.stopPropagation();
 
 bookings.splice(index,1);
 
@@ -406,6 +419,7 @@ save();
 }
 
 
+/* START */
 
 render();
 
